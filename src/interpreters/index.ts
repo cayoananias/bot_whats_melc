@@ -1,0 +1,1 @@
+import { env } from '../config/env'; import { MessageInterpreter } from './MessageInterpreter'; import { RuleBasedInterpreter } from './RuleBasedInterpreter'; import { LocalAIInterpreter } from './LocalAIInterpreter'; export const interpreter:MessageInterpreter=env.INTERPRETER==='ollama'?new LocalAIInterpreter():new RuleBasedInterpreter();

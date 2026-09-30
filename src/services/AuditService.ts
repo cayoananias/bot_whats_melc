@@ -1,0 +1,1 @@
+import { prisma } from '../database/prisma'; export const audit=(action:string,entity:string,entityId:string,userId?:string,transactionId?:string,metadata?:object)=>prisma.auditLog.create({data:{action,entity,entityId,userId,transactionId,metadata}});
