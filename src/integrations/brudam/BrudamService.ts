@@ -1,0 +1,1 @@
+import { Transaction } from '@prisma/client'; export interface BrudamService { createTransaction(transaction:Transaction):Promise<{externalId:string}>; updateTransaction(externalId:string, transaction:Transaction):Promise<void>; getTransaction(externalId:string):Promise<unknown>; cancelTransaction(externalId:string):Promise<void>; }

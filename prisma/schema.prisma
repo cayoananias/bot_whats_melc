@@ -1,0 +1,15 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql"; url = env("DATABASE_URL") }
+enum Role { ADMIN OPERATOR VIEWER }
+enum TransactionType { INCOME EXPENSE }
+enum TransactionStatus { DRAFT AWAITING_CONFIRMATION CONFIRMED PENDING_SYNC SENT ERROR CANCELLED }
+enum SessionState { COLLECTING AWAITING_CONFIRMATION CORRECTING }
+model User { id String @id @default(cuid()); name String; phone String @unique; email String? @unique; passwordHash String; role Role @default(OPERATOR); active Boolean @default(true); createdAt DateTime @default(now()); createdTransactions Transaction[] @relation("createdBy"); confirmedTransactions Transaction[] @relation("confirmedBy"); logs AuditLog[]; sessions ConversationSession[] }
+model Category { id String @id @default(cuid()); name String; type TransactionType; active Boolean @default(true); createdAt DateTime @default(now()); transactions Transaction[]; @@unique([name,type]) }
+model Vehicle { id String @id @default(cuid()); code String @unique; name String?; active Boolean @default(true); transactions Transaction[] }
+model Customer { id String @id @default(cuid()); name String @unique; active Boolean @default(true); transactions Transaction[] }
+model Supplier { id String @id @default(cuid()); name String @unique; active Boolean @default(true); transactions Transaction[] }
+model Account { id String @id @default(cuid()); name String @unique; active Boolean @default(true); transactions Transaction[] }
+model Transaction { id String @id @default(cuid()); type TransactionType; amount Decimal @db.Decimal(14,2); categoryId String?; category Category? @relation(fields:[categoryId],references:[id]); description String; date DateTime @db.Date; vehicleId String?; vehicle Vehicle? @relation(fields:[vehicleId],references:[id]); customerId String?; customer Customer? @relation(fields:[customerId],references:[id]); supplierId String?; supplier Supplier? @relation(fields:[supplierId],references:[id]); accountId String?; account Account? @relation(fields:[accountId],references:[id]); status TransactionStatus @default(DRAFT); createdById String; createdBy User @relation("createdBy",fields:[createdById],references:[id]); confirmedById String?; confirmedBy User? @relation("confirmedBy",fields:[confirmedById],references:[id]); createdAt DateTime @default(now()); confirmedAt DateTime?; externalId String? @unique; sourceMessageId String? @unique; rawMessage String?; idempotencyKey String @unique; logs AuditLog[] }
+model ConversationSession { id String @id @default(cuid()); userId String; user User @relation(fields:[userId],references:[id]); state SessionState @default(COLLECTING); draft Json; transactionId String?; updatedAt DateTime @updatedAt; @@unique([userId]) }
+model AuditLog { id String @id @default(cuid()); action String; entity String; entityId String; metadata Json?; userId String?; user User? @relation(fields:[userId],references:[id]); transactionId String?; transaction Transaction? @relation(fields:[transactionId],references:[id]); createdAt DateTime @default(now()) }

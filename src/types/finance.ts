@@ -1,0 +1,1 @@
+export type Draft = { type?: 'INCOME'|'EXPENSE'; amount?: number; category?: string; description?: string; date?: string; vehicleCode?: string; customer?: string; supplier?: string; account?: string; notes?: string };
